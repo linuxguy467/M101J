@@ -15,7 +15,7 @@
  *
  */
 
-package com.mongodb;
+package com.mongodb.week1;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -46,7 +46,7 @@ public class SparkFormHandling {
                             Arrays.asList("apple", "orange", "banana", "peach"));
 
                     Template fruitPickerTemplate =
-                            configuration.getTemplate("fruitPicker.ftl");
+                            configuration.getTemplate("freemarker/fruitPicker.ftl");
                     StringWriter writer = new StringWriter();
                     fruitPickerTemplate.process(fruitsMap, writer);
                     return writer;

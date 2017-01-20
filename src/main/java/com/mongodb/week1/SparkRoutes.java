@@ -15,7 +15,7 @@
  *
  */
 
-package com.mongodb;
+package com.mongodb.week1;
 
 import spark.Request;
 import spark.Response;
