@@ -23,6 +23,7 @@ import com.mongodb.client.MongoDatabase;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -30,6 +31,10 @@ import spark.Spark;
 
 import java.io.StringWriter;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.mongodb.client.model.Filters.eq;
 
 public class HelloWorldMongoDBSparkFreemarkerStyle {
     public static void main(String[] args)  {
@@ -41,9 +46,14 @@ public class HelloWorldMongoDBSparkFreemarkerStyle {
 
         MongoDatabase database = client.getDatabase("course");
         final MongoCollection<Document> collection = database.getCollection("hello");
-        collection.drop();
+        //collection.drop();
 
-        collection.insertOne(new Document("name", "MongoDB"));
+        Bson filter = eq("name", "MongoDB");
+        long count = collection.count(filter);
+        System.out.println(count);
+        if(count == 0){
+            collection.insertOne(new Document("name", "MongoDB"));
+        }
 
         Spark.get(new Route("/") {
             @Override
@@ -53,7 +63,7 @@ public class HelloWorldMongoDBSparkFreemarkerStyle {
                 try {
                     Template helloTemplate = configuration.getTemplate("hello.ftl");
 
-                    Document document = collection.find().first();
+                    Document document = collection.find(filter).first();
 
                     helloTemplate.process(document, writer);
                 } catch (Exception e) {
