@@ -4,9 +4,13 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Sorts.descending;
+import static com.mongodb.client.model.Updates.push;
 
 public class BlogPostDAO {
     MongoCollection<Document> postsCollection;
@@ -33,7 +37,10 @@ public class BlogPostDAO {
         // XXX HW 3.2,  Work Here
         // Return a list of DBObjects, each one a post from the posts collection
         List<Document> posts = null;
-        posts
+        posts = postsCollection.find()
+                                .sort(descending("date"))
+                                .limit(limit)
+                                .into(new ArrayList<>());
 
         return posts;
     }
@@ -59,7 +66,15 @@ public class BlogPostDAO {
         // - we created the permalink for you above.
 
         // Build the post object and insert it
-        Document post = new Document();
+        Document post = new Document("author", username)
+                                    .append("body", body)
+                                    .append("permalink", permalink)
+                                    .append("tags", tags)
+                                    .append("comments", new ArrayList<Document>())
+                                    .append("date", new Date())
+                                    .append("title", title);
+
+        postsCollection.insertOne(post);
 
 
         return permalink;
@@ -86,5 +101,16 @@ public class BlogPostDAO {
         // - email is optional and may come in NULL. Check for that.
         // - best solution uses an update command to the database and a suitable
         //   operator to append the comment on to any existing list of comments
+
+        Document existingPost = findByPermalink(permalink);
+        Document comment = new Document("author", name);
+
+        if(email != null && !email.equals("")){
+            comment.append("email", email);
+        }
+
+        comment.append("body", body);
+
+        postsCollection.updateOne(existingPost, push("comments", comment));
     }
 }
