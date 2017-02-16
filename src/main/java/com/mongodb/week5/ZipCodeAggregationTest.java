@@ -36,6 +36,8 @@ public class ZipCodeAggregationTest {
 
         results.forEach(document -> System.out.println(document.toJson()));
 
+        System.out.flush();
+
         List<Document> documents = synchronizedList(new ArrayList<>());
 
         documents.add(new Document("_id", new ObjectId())
